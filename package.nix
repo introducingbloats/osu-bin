@@ -3,6 +3,8 @@
   appimageTools,
   fetchurl,
   icu,
+  copyDesktopItems,
+  makeDesktopItem,
   channel ? "stable",
 }:
 let
@@ -35,10 +37,26 @@ appimageTools.wrapType2 {
       };
     in
     ''
-      # Install desktop file and icon if available
-      if [ -d "${appimageContents}/usr/share" ]; then
-        cp -r ${appimageContents}/usr/share $out/share
+      # Install icons from the AppImage
+      if [ -d "${appimageContents}/usr/share/icons" ]; then
+        mkdir -p $out/share
+        cp -r ${appimageContents}/usr/share/icons $out/share/icons
       fi
+
+      # Install a proper desktop file with correct Exec path
+      mkdir -p $out/share/applications
+      cat > $out/share/applications/osu-lazer.desktop <<EOF
+      [Desktop Entry]
+      Name=osu!
+      Comment=A free-to-win rhythm game
+      Exec=$out/bin/${pname} %U
+      Icon=osu!
+      Type=Application
+      Categories=Game;
+      StartupWMClass=osu!
+      MimeType=application/x-osu-beatmap;application/x-osu-skin;application/x-osu-replay;x-scheme-handler/osu;
+      EOF
+      sed -i 's/^      //' $out/share/applications/osu-lazer.desktop
     '';
 
   meta = {
