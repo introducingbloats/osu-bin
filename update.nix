@@ -1,6 +1,5 @@
 {
   lib,
-  nix-prefetch-scripts,
   writeShellApplication,
   jq,
   coreutils,
@@ -10,7 +9,6 @@ writeShellApplication {
   name = "osu-bin-update";
   runtimeInputs = [
     jq
-    nix-prefetch-scripts
     coreutils
     curl
   ];
@@ -45,8 +43,7 @@ writeShellApplication {
 
       echo "Fetching AppImage and calculating hash"
       APPIMAGE_URL="https://github.com/ppy/osu/releases/download/$TAG/osu.AppImage"
-      X64_SHA256=$(nix-prefetch-url "$APPIMAGE_URL")
-      X64_HASH=$(nix-hash --to-sri --type sha256 "$X64_SHA256")
+      X64_HASH=$(nix store prefetch-file --json "$APPIMAGE_URL" | jq -r '.hash')
       echo "$CHANNEL x86_64-linux hash: $X64_HASH"
 
       jq --arg channel "$CHANNEL" \
