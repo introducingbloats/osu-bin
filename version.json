@@ -5,8 +5,8 @@
     "hash-linux-x64": "sha256-JpuHeZdXHx5n93y87cUiuBFFXexIMx0gO2HMezXWy0A="
   },
   "tachyon": {
-    "version": "2026.417.0",
-    "tag": "2026.417.0-tachyon",
-    "hash-linux-x64": "sha256-S4XXKRUm5eyAuHk5TjyluvGTq1AVDsKjLJT3883Ideg="
+    "version": "2026.428.0",
+    "tag": "2026.428.0-tachyon",
+    "hash-linux-x64": "sha256-egZkBQYu0eOZwRbMsQ6oBgpC20nzQ4t0SChKK9B7U7A="
   }
 }
