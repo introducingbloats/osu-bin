@@ -55,10 +55,10 @@ writeShellApplication {
 
       if [ "$PRERELEASE" = "true" ]; then
         RELEASE=$(github_curl "https://api.github.com/repos/ppy/osu/releases" | \
-          jq -re "[.[] | select(.prerelease == true and (.tag_name | endswith(\"$TAG_SUFFIX\")))[0]]")
+          jq -re "[.[] | select(.prerelease == true and (.tag_name | endswith(\"$TAG_SUFFIX\")))] | .[0]")
       else
         RELEASE=$(github_curl "https://api.github.com/repos/ppy/osu/releases" | \
-          jq -re "[.[] | select(.prerelease == false and (.tag_name | endswith(\"$TAG_SUFFIX\")))[0]]")
+          jq -re "[.[] | select(.prerelease == false and (.tag_name | endswith(\"$TAG_SUFFIX\")))] | .[0]")
       fi
 
       TAG=$(echo "$RELEASE" | jq -re '.tag_name')
