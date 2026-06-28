@@ -12,8 +12,39 @@ writeShellApplication {
     coreutils
     curl
   ];
-  text = ''
+    text = ''
     set -euo pipefail
+
+    CURL_OPTS=()
+    if [[ -n "''${GITHUB_TOKEN:-}" ]]; then
+      CURL_OPTS=( -H "Authorization: Bearer ''${GITHUB_TOKEN}" )
+    fi
+
+    github_curl() {
+      local url=$1
+      local tmp
+      local status
+
+      tmp="$(mktemp)"
+      status="$(curl -sS -L "''${CURL_OPTS[@]}" -o "$tmp" -w "%{http_code}" "$url" || echo "__CURL_FAILED__")"
+
+      if [ "$status" = "__CURL_FAILED__" ]; then
+        echo "Error: failed to execute curl request: $url" >&2
+        rm -f "$tmp"
+        exit 1
+      fi
+
+      if [ "$status" != "200" ]; then
+        echo "Error: GitHub API returned HTTP $status for $url" >&2
+        echo "Response body:" >&2
+        cat "$tmp" >&2 || true
+        rm -f "$tmp"
+        exit 1
+      fi
+
+      cat "$tmp"
+      rm -f "$tmp"
+    }
 
     update_channel() {
       local CHANNEL="$1"
@@ -23,14 +54,14 @@ writeShellApplication {
       echo "=== Updating $CHANNEL channel (tag suffix: $TAG_SUFFIX) ==="
 
       if [ "$PRERELEASE" = "true" ]; then
-        RELEASE=$(curl -sL "https://api.github.com/repos/ppy/osu/releases" | \
-          jq -r "[.[] | select(.prerelease == true and (.tag_name | endswith(\"$TAG_SUFFIX\")))][0]")
+        RELEASE=$(github_curl "https://api.github.com/repos/ppy/osu/releases" | \
+          jq -re "[.[] | select(.prerelease == true and (.tag_name | endswith(\"$TAG_SUFFIX\")))[0]]")
       else
-        RELEASE=$(curl -sL "https://api.github.com/repos/ppy/osu/releases" | \
-          jq -r "[.[] | select(.prerelease == false and (.tag_name | endswith(\"$TAG_SUFFIX\")))][0]")
+        RELEASE=$(github_curl "https://api.github.com/repos/ppy/osu/releases" | \
+          jq -re "[.[] | select(.prerelease == false and (.tag_name | endswith(\"$TAG_SUFFIX\")))[0]]")
       fi
 
-      TAG=$(echo "$RELEASE" | jq -r '.tag_name')
+      TAG=$(echo "$RELEASE" | jq -re '.tag_name')
       VERSION="''${TAG%-"$TAG_SUFFIX"}"
       echo "Latest $CHANNEL version: $VERSION (tag: $TAG)"
 
