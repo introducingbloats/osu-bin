@@ -1,8 +1,8 @@
 {
   "stable": {
-    "version": "2026.920.0",
-    "tag": "2026.920.0-lazer",
-    "hash-linux-x64": "sha256-D+iFOmBRx/wTfFHvg83stol+hl4SNES2DiC4L5pWYGw="
+    "version": "2026.921.0",
+    "tag": "2026.921.0-lazer",
+    "hash-linux-x64": "sha256-3O2UY7UBAJyV2+2JGr0vCswu+4TuQzb1scw7fASl/H0="
   },
   "tachyon": {
     "version": "2026.918.0",
